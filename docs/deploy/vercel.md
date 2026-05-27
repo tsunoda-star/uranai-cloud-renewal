@@ -47,7 +47,7 @@ Vercel Dashboard → Project → Settings → Environment Variables（または 
 | `NEXT_PUBLIC_SITE_URL` | `https://uranai-cloud-renewal.vercel.app` | ✅ | OGP/sitemap/canonical の絶対 URL |
 | `AUTH_PROVIDER` | `dev` | ✅ | dev アダプタを要求 |
 | `ALLOW_DEV_AUTH` | `true` | ✅ | **prod 上で dev を明示開放するオプトイン**。これが無いと prod では dev 拒否 |
-| `DEV_AUTH_DEFAULT_ROLE` | `GENERAL` | ⚪ | role cookie/header 不在時の既定ロール（`GENERAL`/`FORTUNE_TELLER`/`ADMIN`） |
+| `DEV_AUTH_DEFAULT_ROLE` | — | ❌ | **2026-05-28 廃止**。cookie/header 不在時は **未ログイン (null セッション)** を返す方針へ変更（/dev/logout 後に勝手にデフォルトロールで再ログインされる UX 不具合の修正）。env を残しても無視される。E2E は `dev_role` cookie か `x-dev-role` header を明示すること。 |
 
 > ステージングでは全ページ上部に **「⚠ STAGING / デモ環境（開発用認証が有効）」バナー**が表示される
 > （`AUTH_PROVIDER=dev && NODE_ENV=production && ALLOW_DEV_AUTH=true` の時のみ）。

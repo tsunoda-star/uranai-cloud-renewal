@@ -25,7 +25,12 @@ import type {
  * Role selection:
  *   - cookie  `dev_role`        (highest priority, set by a dev role switcher)
  *   - header  `x-dev-role`      (useful for E2E / curl)
- *   - env     DEV_AUTH_DEFAULT_ROLE (fallback default)
+ *   - どちらも無ければ **null セッション (= 未ログイン)** を返す。
+ *
+ * 旧仕様 (env `DEV_AUTH_DEFAULT_ROLE` への暗黙フォールバック) は
+ * 「/dev/logout してもデフォルトロールで再ログインされたように見える」UX
+ * 不具合を生んでいたため廃止 (2026-05-28)。E2E は header `x-dev-role` を明示的に
+ * 立てるか、ブラウザフローで /dev/login → role 選択を経るのが正規ルート。
  */
 
 const VALID_ROLES: readonly UserRole[] = [
@@ -64,8 +69,6 @@ const DEV_PRINCIPALS: Record<UserRole, { sub: string; email: string; displayName
 export class DevAuthProvider implements AuthProvider {
   readonly name = "dev";
 
-  private readonly defaultRole: UserRole;
-
   constructor() {
     // Hard assert (defense-in-depth): this adapter must never be constructed
     // unless the dev path is the active, permitted one. On a true production
@@ -76,17 +79,20 @@ export class DevAuthProvider implements AuthProvider {
           "is true (AUTH_PROVIDER=dev AND (NODE_ENV!=production OR ALLOW_DEV_AUTH=true)) — ADR-3 prod guard."
       );
     }
-    this.defaultRole =
-      coerceRole(process.env.DEV_AUTH_DEFAULT_ROLE) ?? "GENERAL";
   }
 
   async getSession(
     request: AuthRequestContext
   ): Promise<AuthSession | null> {
+    // cookie / header いずれも未指定なら **未ログイン** として null を返す。
+    // 以前は env DEV_AUTH_DEFAULT_ROLE への暗黙フォールバックがあったが、
+    // /dev/logout 後も「勝手にデフォルトロールで再ログインされた」状態になり
+    // UX 不具合を生んでいたため廃止 (2026-05-28)。
     const role =
       coerceRole(request.getCookie("dev_role")) ??
-      coerceRole(request.getHeader("x-dev-role")) ??
-      this.defaultRole;
+      coerceRole(request.getHeader("x-dev-role"));
+
+    if (!role) return null;
 
     const principal = DEV_PRINCIPALS[role];
     return {
