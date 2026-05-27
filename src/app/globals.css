@@ -1,0 +1,496 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens (design-system.yml v1.4.0, live uranai.cloud brand).
+ * shadcn/ui semantic variables mapped to the uranai palette (ink #212529 base +
+ * teal #34cccc accent). HSL values correspond to the hex tokens documented in
+ * design-system.yml, with WCAG AA contrast verified there (/tmp/uranai-rebrand/wcag*.mjs).
+ */
+@layer base {
+  :root {
+    --background: 0 0% 98%; /* gray-50 #fafafa */
+    --foreground: 210 11% 15%; /* brand ink #212529 (on bg 14.78:1, AAA) */
+
+    --card: 0 0% 100%; /* #ffffff */
+    --card-foreground: 210 11% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 11% 15%;
+
+    --primary: 210 11% 15%; /* ink #212529 (本家=黒CTA). white on ink 15.43:1 */
+    --primary-foreground: 0 0% 100%; /* white on ink 15.43:1 (AAA) */
+
+    --secondary: 220 14% 96%; /* gray-100 #f3f4f6 */
+    --secondary-foreground: 210 11% 15%;
+
+    --muted: 220 14% 96%; /* gray-100 */
+    --muted-foreground: 220 9% 46%; /* gray-500 #6b7280 (on #fff 4.83:1) */
+
+    --accent: 180 60% 50%; /* teal #34cccc (FILL/装飾。白文字on-teal はテキスト不可) */
+    --accent-foreground: 210 11% 15%; /* ink on teal 7.83:1 (text PASS) */
+
+    --destructive: 354 71% 47%; /* red-text #cc2233 (on #fff 5.46:1, AA) */
+    --destructive-foreground: 0 0% 100%; /* white on #cc2233 5.46:1 */
+
+    --border: 231 14% 92%; /* gray-200 #e8e9ed (decorative) */
+    --input: 218 11% 65%; /* gray-400 #9ca3af (functional UI border) */
+    --ring: 180 80% 25%; /* teal-strong #0d7373 focus ring (on #fff 5.65:1) */
+
+    --radius: 0.625rem; /* 10px base */
+  }
+
+  .dark {
+    --background: 210 11% 15%; /* brand ink #212529 */
+    --foreground: 0 0% 100%; /* white 15.43:1 */
+
+    --card: 213 10% 18%; /* ink-derived dark surface #2a2e33 */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 213 10% 18%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 210 11% 15%;
+
+    --secondary: 213 10% 18%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 213 10% 18%;
+    --muted-foreground: 216 12% 84%; /* gray-300 on ink 10.47:1 */
+
+    --accent: 180 60% 50%; /* teal on ink 7.83:1 (text PASS) */
+    --accent-foreground: 210 11% 15%;
+
+    --destructive: 354 71% 47%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 213 10% 24%;
+    --input: 213 10% 24%;
+    --ring: 180 59% 61%; /* teal-light #5fd6d6 ring on dark */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    font-feature-settings: "tnum" 0;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading tracking-heading;
+  }
+  /* Respect reduced motion (design-system.yml reduced_motion: true) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/*
+ * Motion layer (brighty.site measured entrance language, v1.2.0).
+ *
+ * All entrance / signature motion is CSS keyframe driven (no JS engine), using
+ * compositor-only props (transform / opacity) so it never triggers layout. The
+ * `both` fill-mode guarantees the FINAL state is applied even if JS never runs
+ * — this is what eliminates the prior "lower sections render blank" bug (FadeIn
+ * used to start at opacity:0 and only reveal on whileInView).
+ *
+ * easing `ease-snap` = cubic-bezier(.22,1,.36,1) (brighty snap-decelerate).
+ * Durations follow design-system.yml v1.2.0 two-tier rule:
+ *   - entrance (load cascade / reveal / logo pop) <= 700ms
+ *   - micro interaction (hover / press) <= 200ms
+ *
+ * @media (prefers-reduced-motion: reduce) below force-disables every keyframe
+ * (instant final state) and the ticker / pulse, per WCAG 2.3.3.
+ */
+@layer utilities {
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.55;
+      transform: scale(0.82);
+    }
+  }
+  @keyframes ticker-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* the marquee renders the activity list twice; -50% loops seamlessly */
+      transform: translateX(-50%);
+    }
+  }
+
+  /*
+   * Brand splash (opening intro). The logo "bursts open" then the overlay wipes
+   * up to reveal the page. Compositor-only props (transform / opacity / a fixed
+   * clip-path inset). The splash is the deliberate BRAND INTRO (once/session),
+   * so its phases run slower than the in-page micro-tier — total ≈ 3.0–3.6s with
+   * breathing room between phases (logo burst → hold/breathe → tagline → wipe).
+   */
+  @keyframes splash-logo-burst {
+    0% {
+      opacity: 0;
+      transform: scale(0.62);
+    }
+    /* ゆっくり開く: 大きめのオーバーシュートから穏やかに収束 */
+    60% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes splash-glow-expand {
+    0% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    55% {
+      opacity: 0.9;
+      transform: scale(1.12);
+    }
+    100% {
+      opacity: 0.72;
+      transform: scale(1);
+    }
+  }
+  /* 位相2「呼吸の間」: glow がゆっくり脈動して静けさ（ホールド）を演出する。 */
+  @keyframes splash-breathe {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.06);
+    }
+  }
+  @keyframes splash-tagline {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  /* Sparks scatter outward from the logo (each spark sets its own --tx/--ty). */
+  @keyframes splash-spark {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.4);
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+    }
+  }
+  /* Overlay wipe-up reveal (clip the overlay away from the bottom upward). */
+  @keyframes splash-wipe {
+    from {
+      clip-path: inset(0 0 0 0);
+    }
+    to {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  /* Hero ambient float + twinkle (signature loops, paused on reduced-motion). */
+  @keyframes hero-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  @keyframes hero-twinkle {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Entrance helpers (<=700ms). `both` keeps the final state without JS. */
+  .animate-fade-up {
+    animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-pop-in {
+    animation: pop-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+
+  /*
+   * Brand splash helpers (v1.4.0 延伸). 位相に余白を持たせ、easing を緩やかに:
+   *   logo   : 0.95s（ゆっくり開く）
+   *   glow   : 1.10s（拡大）→ その後 breathe で呼吸（位相2 の間）
+   *   tagline: 0.9s（delay 1.5s = ロゴ＋ホールドの後にゆったり出現）
+   *   spark  : 0.85s（delay は各 spark にインライン指定、後ろ倒し）
+   *   wipe   : 0.8s（ゆったりワイプ）
+   */
+  .animate-splash-logo {
+    animation: splash-logo-burst 0.95s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  .animate-splash-glow {
+    animation:
+      splash-glow-expand 1.1s cubic-bezier(0.22, 1, 0.36, 1) both,
+      splash-breathe 2.2s ease-in-out 1.1s infinite;
+    will-change: transform, opacity;
+  }
+  .animate-splash-tagline {
+    animation: splash-tagline 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.5s both;
+    will-change: transform, opacity;
+  }
+  .animate-splash-spark {
+    animation: splash-spark 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+  /* Wipe applied when dismissing; ゆったり 0.8s で表出（WIPE_MS と一致）。 */
+  .animate-splash-wipe {
+    animation: splash-wipe 0.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    will-change: clip-path;
+  }
+
+  /* Hero ambient signature loops. */
+  .animate-hero-float {
+    animation: hero-float 6s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-hero-twinkle {
+    animation: hero-twinkle 3.2s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  /* Signature loops. */
+  .animate-pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  .animate-ticker {
+    animation: ticker-scroll 100s linear infinite;
+  }
+  /* Pause the marquee on hover/focus so labels stay readable. */
+  .ticker-track:hover .animate-ticker,
+  .ticker-track:focus-within .animate-ticker {
+    animation-play-state: paused;
+  }
+
+  /*
+   * Scroll-reveal: the element is fully visible by default (no-JS / SSR safe).
+   * IntersectionObserver adds `is-revealing` to replay the entrance once it
+   * enters the viewport — but a missed observer never hides content.
+   */
+  .reveal-on-scroll.is-revealing {
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Stagger delays for load cascade (brighty: 0/0.06/0.12/0.15/0.18 ...). */
+  .stagger-0 {
+    animation-delay: 0ms;
+  }
+  .stagger-1 {
+    animation-delay: 60ms;
+  }
+  .stagger-2 {
+    animation-delay: 120ms;
+  }
+  .stagger-3 {
+    animation-delay: 150ms;
+  }
+  .stagger-4 {
+    animation-delay: 180ms;
+  }
+  .stagger-5 {
+    animation-delay: 240ms;
+  }
+  .stagger-6 {
+    animation-delay: 300ms;
+  }
+}
+
+/*
+ * Reduced-motion: disable every entrance/signature animation and force the
+ * final visible state (no transform offset, full opacity). The base
+ * reduced-motion block above already neutralises durations; this guarantees the
+ * marquee/pulse stop and that `both`-filled elements are never left mid-state.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-pop-in,
+  .reveal-on-scroll,
+  .reveal-on-scroll.is-revealing {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .animate-pulse-dot,
+  .animate-ticker,
+  .animate-hero-float,
+  .animate-hero-twinkle {
+    animation: none !important;
+  }
+  /*
+   * Splash: under reduced-motion the SplashIntro component does not mount at all
+   * (it checks the media query before rendering), so the page is shown instantly.
+   * These rules are a defensive no-op guard in case the overlay ever renders.
+   */
+  .animate-splash-logo,
+  .animate-splash-glow,
+  .animate-splash-tagline,
+  .animate-splash-spark,
+  .animate-splash-wipe {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
+/*
+ * Blog article prose (Wave 5a). No @tailwindcss/typography plugin is installed,
+ * so reading styles are defined here from design-system tokens: comfortable line
+ * height, restrained heading scale, accessible link colour (brand-teal-strong
+ * = AA on white), bordered images / blockquotes. No purple gradients / glows.
+ * Width is bounded by `max-w-content` (42rem ≈ 65-75 chars) on the wrapper.
+ */
+@layer components {
+  .prose {
+    @apply font-body text-base leading-relaxed text-gray-700;
+  }
+  .prose > * + * {
+    @apply mt-5;
+  }
+  .prose h2 {
+    @apply mt-10 font-heading text-h2 font-bold text-primary;
+  }
+  .prose h3 {
+    @apply mt-8 font-heading text-h3 font-semibold text-primary;
+  }
+  .prose h4 {
+    @apply mt-6 font-heading text-h4 font-semibold text-primary;
+  }
+  .prose p {
+    @apply leading-relaxed text-gray-700;
+  }
+  .prose a {
+    @apply font-medium text-brand-teal-strong underline underline-offset-2 hover:no-underline;
+  }
+  .prose strong {
+    @apply font-semibold text-primary;
+  }
+  .prose ul {
+    @apply list-disc space-y-1.5 pl-6 marker:text-brand-teal-strong;
+  }
+  .prose ol {
+    @apply list-decimal space-y-1.5 pl-6 marker:text-gray-400;
+  }
+  .prose li {
+    @apply leading-relaxed text-gray-700;
+  }
+  .prose blockquote {
+    @apply border-l-4 border-brand-teal/60 bg-brand-teal-pale py-2 pl-4 text-gray-600 italic;
+  }
+  .prose img {
+    @apply my-6 h-auto w-full rounded-2xl border border-gray-200;
+  }
+  .prose code {
+    @apply rounded-sm bg-secondary px-1.5 py-0.5 text-sm text-primary;
+  }
+  .prose pre {
+    @apply overflow-x-auto rounded-2xl bg-primary p-4 text-sm text-primary-foreground;
+  }
+  .prose pre code {
+    @apply bg-transparent p-0 text-primary-foreground;
+  }
+  .prose hr {
+    @apply my-8 border-gray-200;
+  }
+}
+
+/*
+ * Tiptap (ProseMirror) editing surface (Wave 5b). The editor reuses the `.prose`
+ * reading styles for WYSIWYG fidelity. Add only editor-specific affordances:
+ * empty-state placeholder, full-height focus area, and a visible link affordance
+ * so authors can see what is linked. No purple gradients / glows / AI-slop fonts.
+ */
+@layer components {
+  .ProseMirror {
+    @apply outline-none;
+  }
+  .ProseMirror:focus {
+    @apply outline-none;
+  }
+  .ProseMirror a {
+    @apply font-medium text-brand-teal-strong underline underline-offset-2;
+  }
+}

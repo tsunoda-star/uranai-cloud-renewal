@@ -1,0 +1,25 @@
+<svg viewBox="0 0 800 450" width="800" height="450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="水晶玉・占いのイメージ">
+  <defs>
+    <linearGradient id="bg-crystal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdf2f4"/>
+      <stop offset="1" stop-color="#f3f4f6"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#34cccc"/>
+      <stop offset="1" stop-color="#0d7373"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-crystal)"/>
+  <!-- crystal ball -->
+  <circle cx="400" cy="210" r="110" fill="url(#orb)"/>
+  <!-- highlight -->
+  <ellipse cx="365" cy="175" rx="34" ry="22" fill="#fdf2f4" opacity="0.65"/>
+  <!-- stand -->
+  <path d="M320 318 L480 318 L450 360 L350 360 Z" fill="#212529"/>
+  <rect x="338" y="356" width="124" height="12" rx="6" fill="#212529"/>
+  <!-- sparkles around the orb -->
+  <g fill="#212529">
+    <path d="M250 130 l5 11 12 1 -8 8 2 12 -11 -6 -11 6 2 -12 -8 -8 12 -1Z"/>
+    <path d="M560 250 l5 11 12 1 -8 8 2 12 -11 -6 -11 6 2 -12 -8 -8 12 -1Z"/>
+  </g>
+</svg>

@@ -1,0 +1,53 @@
+{
+  "mcpServers": {
+    "ccagi-tools": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/ccagi-tools-server",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    },
+    "design-guide-mcp": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/design-guide-mcp",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    },
+    "irondome-code-mcp": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/irondome-code-mcp",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    },
+    "pil-mcp": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/pil-mcp",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    },
+    "q-mcp": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/q-mcp",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    },
+    "threejs-mcp": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/threejs-mcp",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    },
+    "xkoma-mcp": {
+      "args": [],
+      "command": "/Users/satoryouma/.ccagi/bin/xkoma-mcp",
+      "env": {
+        "HOME": "/Users/satoryouma"
+      }
+    }
+  }
+}

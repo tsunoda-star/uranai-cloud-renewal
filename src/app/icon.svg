@@ -1,0 +1,13 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    占いクラウド favicon — 本家ロゴタイプ左の角丸バッジ（ink #212529）に
+    「占＋雲」合字マークを白（負形）で配置。本家 favicon
+    (asset.matchingcloud.com/site/d42d5ce0-…png) の見え方に合わせる。
+  -->
+  <rect width="48" height="48" rx="11" fill="#212529"/>
+  <g transform="translate(8 9.5) scale(1.0)" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M15 4 V12.4"/>
+    <path d="M15 7 H24.6"/>
+    <path d="M15 12.4 a3.2 3.2 0 0 0 -4.9 0.5 a3.5 3.5 0 0 0 -0.7 6.9 H22.7 a3.2 3.2 0 0 0 0.5 -6.35 a4.6 4.6 0 0 0 -8.0 -1.2 Z"/>
+  </g>
+</svg>

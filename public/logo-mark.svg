@@ -1,0 +1,12 @@
+<svg viewBox="0 0 32 32" width="32" height="32" xmlns="http://www.w3.org/2000/svg" fill="none" role="img" aria-label="占いクラウド">
+  <title>占いクラウド</title>
+  <!-- 本家 uranai.cloud の「占＋雲」合字を単一ウェイト線画で忠実再現（ink #212529）。 -->
+  <g stroke="#212529" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 卜の縦棒 -->
+    <path d="M15 4 V12.4"/>
+    <!-- 卜の右上フラッグ -->
+    <path d="M15 7 H24.6"/>
+    <!-- 占の口を置換した雲（左ロブ→中央くぼみ→右ドーム・下辺フラット） -->
+    <path d="M15 12.4 a3.2 3.2 0 0 0 -4.9 0.5 a3.5 3.5 0 0 0 -0.7 6.9 H22.7 a3.2 3.2 0 0 0 0.5 -6.35 a4.6 4.6 0 0 0 -8.0 -1.2 Z"/>
+  </g>
+</svg>

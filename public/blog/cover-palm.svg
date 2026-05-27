@@ -1,0 +1,26 @@
+<svg viewBox="0 0 800 450" width="800" height="450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="手相・自分らしさのイメージ">
+  <defs>
+    <linearGradient id="bg-palm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdf2f4"/>
+      <stop offset="1" stop-color="#34cccc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-palm)"/>
+  <!-- open palm silhouette -->
+  <g transform="translate(400 240)" fill="#212529">
+    <path d="M-70 120 q-14 -110 4 -150 q8 -16 18 2 q4 14 6 44
+             q4 -86 18 -88 q14 -2 14 84
+             q6 -78 20 -78 q14 0 10 80
+             q8 -54 22 -50 q12 4 2 70
+             q12 -30 22 -22 q10 8 -8 56
+             q-14 38 -26 60 q-18 34 -56 32 q-46 -2 -70 -72Z"/>
+  </g>
+  <!-- palm lines (coral) -->
+  <g stroke="#0d7373" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M360 230 q40 -10 78 6"/>
+    <path d="M355 258 q56 0 96 26"/>
+    <path d="M372 290 q34 18 60 50"/>
+  </g>
+  <!-- sparkle -->
+  <path d="M520 130 l6 13 14 1 -10 10 3 14 -13 -8 -13 8 3 -14 -10 -10 14 -1Z" fill="#212529"/>
+</svg>

@@ -1,0 +1,26 @@
+<svg viewBox="0 0 800 450" width="800" height="450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="月とスピリチュアルのイメージ">
+  <defs>
+    <linearGradient id="bg-moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a2e33"/>
+      <stop offset="1" stop-color="#212529"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg-moon)"/>
+  <!-- large crescent moon -->
+  <path d="M470 360 a150 150 0 1 1 -46 -293 116 116 0 1 0 46 293Z" fill="#34cccc"/>
+  <!-- craters -->
+  <g fill="#0d7373" opacity="0.55">
+    <circle cx="360" cy="170" r="14"/>
+    <circle cx="320" cy="240" r="9"/>
+    <circle cx="385" cy="260" r="7"/>
+  </g>
+  <!-- scattered stars -->
+  <g fill="#fdf2f4">
+    <circle cx="560" cy="120" r="2.6"/>
+    <circle cx="620" cy="200" r="2"/>
+    <circle cx="600" cy="310" r="2.3"/>
+    <circle cx="690" cy="260" r="1.8"/>
+    <circle cx="520" cy="360" r="1.8"/>
+  </g>
+  <path d="M650 150 l6 13 14 1 -10 10 3 14 -13 -8 -13 8 3 -14 -10 -10 14 -1Z" fill="#efbf2f"/>
+</svg>
