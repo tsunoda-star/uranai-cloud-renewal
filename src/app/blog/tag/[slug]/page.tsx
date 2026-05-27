@@ -8,6 +8,7 @@ import {
   getBlogCategoriesWithCounts,
   getBlogTagsWithCounts,
 } from "@/lib/queries";
+import { decodeSlugParam } from "@/lib/blog/slug-param";
 import { BlogListing } from "@/components/blog/blog-listing";
 import { BlogTaxonomyChips } from "@/components/blog/blog-taxonomy-chips";
 import { parsePostParams } from "@/lib/blog-search-params";
@@ -21,7 +22,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeSlugParam(rawSlug);
   const tag = await getBlogTagBySlug(slug);
   if (!tag) return { title: "タグが見つかりません" };
 
@@ -43,7 +45,8 @@ export default async function BlogTagPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<RawSearchParams>;
 }) {
-  const [{ slug }, raw] = await Promise.all([params, searchParams]);
+  const [{ slug: rawSlug }, raw] = await Promise.all([params, searchParams]);
+  const slug = decodeSlugParam(rawSlug);
   const tag = await getBlogTagBySlug(slug);
   if (!tag) notFound();
 

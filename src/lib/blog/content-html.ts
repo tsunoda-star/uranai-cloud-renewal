@@ -6,10 +6,12 @@
  * **許可タグのみ**を出力する allow-list 方式で HTML 化する（contentHtml）。これにより
  * `<script>` / `onerror=` / `javascript:` など任意の注入はそもそも出力されえない。
  *
- * 許可タグ（StarterKit + Link の範囲に対応）:
- *   block : h2, h3, p, ul, ol, li, blockquote, pre, hr
- *   inline: strong, em, s, code, a[href], br
+ * 許可タグ（StarterKit + Link + Table + Image の範囲に対応）:
+ *   block : h2, h3, p, ul, ol, li, blockquote, pre, hr,
+ *           table, tbody, tr, td, th, img
+ *   inline: strong, em, s, code, a[href], br, img[src,alt]
  * これ以外のノード/マークは無視（中身のテキストは保持）。見出し level は 2/3 に正規化。
+ * img の src は http(s) / 相対パスのみ許可（safeImageSrc）。
  *
  * 出力は `/blog/[slug]` の `.prose` スタイルがそのまま効く構造（globals.css 準拠）。
  */
@@ -51,6 +53,29 @@ function safeHref(raw: unknown): string | null {
   }
   // スキームなし（example.com/...）はそのまま相対扱い。
   return href;
+}
+
+/** 画像 src ホワイトリスト: http(s) / 相対パスのみ。mailto/data/javascript: は破棄。 */
+function safeImageSrc(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const src = raw.trim();
+  if (src === "") return null;
+  if (src.startsWith("/")) return src;
+  const schemeMatch = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(src);
+  if (schemeMatch) {
+    const scheme = schemeMatch[1].toLowerCase();
+    if (scheme === "http" || scheme === "https") return src;
+    return null; // data:, javascript:, mailto: 等は破棄
+  }
+  // スキームなし → 相対扱い
+  return src;
+}
+
+function renderImage(node: PMNode): string {
+  const src = safeImageSrc(node.attrs?.src);
+  if (!src) return "";
+  const alt = typeof node.attrs?.alt === "string" ? escapeAttr(node.attrs.alt) : "";
+  return `<img src="${escapeAttr(src)}" alt="${alt}" loading="lazy" />`;
 }
 
 // ---------------------------------------------------------------------------
@@ -135,8 +160,11 @@ function renderInlineContent(nodes: PMNode[] | undefined): string {
       out += renderTextNode(node);
     } else if (node.type === "hardBreak") {
       out += "<br />";
+    } else if (node.type === "image") {
+      // image は extension-image の設定次第で inline / block どちらにもなり得る。
+      // インライン位置で出現した場合もここで描画する。
+      out += renderImage(node);
     }
-    // 他のインラインノード（image 等）は MVP では無視。
   }
   return out;
 }
@@ -153,6 +181,19 @@ function renderListItems(nodes: PMNode[] | undefined): string {
     out += `<li>${renderBlockContent(item.content)}</li>`;
   }
   return out;
+}
+
+function renderTableRow(node: PMNode): string {
+  const cells = (node.content ?? [])
+    .filter((c) => c.type === "tableCell" || c.type === "tableHeader")
+    .map((c) =>
+      c.type === "tableHeader"
+        ? `<th>${renderBlockContent(c.content)}</th>`
+        : `<td>${renderBlockContent(c.content)}</td>`
+    )
+    .join("");
+  if (cells === "") return "";
+  return `<tr>${cells}</tr>`;
 }
 
 function renderBlockNode(node: PMNode): string {
@@ -186,6 +227,26 @@ function renderBlockNode(node: PMNode): string {
       return `<hr />`;
     case "paragraph_empty":
       return "";
+    case "image":
+      // block 位置に置かれた image（extension-image の inline: false の挙動）。
+      return renderImage(node);
+    case "table": {
+      // Tiptap の table 構造: table > tableRow > (tableCell | tableHeader) > paragraph > text
+      // 不正な子はスキップしつつ <table><tbody>...</tbody></table> で囲む。
+      const rows = (node.content ?? [])
+        .filter((r) => r.type === "tableRow")
+        .map(renderTableRow)
+        .join("");
+      if (rows === "") return "";
+      return `<table><tbody>${rows}</tbody></table>`;
+    }
+    case "tableRow":
+      // 通常 table 配下からしか来ないが、念のため独立して描画可能に。
+      return renderTableRow(node);
+    case "tableCell":
+      return `<td>${renderBlockContent(node.content)}</td>`;
+    case "tableHeader":
+      return `<th>${renderBlockContent(node.content)}</th>`;
     default:
       // 未知ブロックは内側の block を再帰描画（テキストを失わない）。
       if (Array.isArray(node.content)) return renderBlockContent(node.content);

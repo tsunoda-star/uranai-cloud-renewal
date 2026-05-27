@@ -4,6 +4,11 @@ import * as React from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import {
   Bold,
   Italic,
@@ -244,6 +249,13 @@ export const RichTextEditor = React.forwardRef<
         HTMLAttributes: { rel: "nofollow noopener noreferrer" },
         protocols: ["http", "https", "mailto"],
       }),
+      // WP 移管対応: 画像 + テーブル拡張をロード（content-html.ts の allow-list と整合）。
+      // ツールバー UI は後続タスクで追加。現状は JSON の roundtrip 安全性のみ確保。
+      Image.configure({ inline: false, allowBase64: false }),
+      Table.configure({ resizable: false, HTMLAttributes: {} }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: isNonEmptyDoc(initialContent)
       ? (initialContent as object)

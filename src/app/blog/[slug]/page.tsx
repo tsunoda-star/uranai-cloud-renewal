@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, CalendarHeart, BookOpen, Sparkles } from "lucide-react";
 
 import { getPostDetail, getRelatedPosts } from "@/lib/queries";
+import { decodeSlugParam } from "@/lib/blog/slug-param";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeSlugParam(rawSlug);
   const post = await getPostDetail(slug);
   if (!post) return { title: "記事が見つかりません" };
 
@@ -63,7 +65,8 @@ export default async function BlogPostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeSlugParam(rawSlug);
   const post = await getPostDetail(slug);
   if (!post) notFound();
 
