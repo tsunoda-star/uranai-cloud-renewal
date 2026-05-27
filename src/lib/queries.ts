@@ -380,6 +380,62 @@ function toAdvisorCard(a: AdvisorCardRow): AdvisorCardView {
 }
 
 /**
+ * BlogCategory.slug → DivinationCategorySlug マッピング。
+ * 運営記事末尾の「同じ専門領域の占い師」表示用のヒューリスティック表。
+ * 未マッピングのカテゴリは全体ランキングでフォールバック。
+ */
+const BLOG_CATEGORY_TO_DIVINATION: Record<string, DivinationCategorySlug> = {
+  // WP 由来カテゴリ
+  "wp-angel-number": "SPIRITUAL_SENSE",
+  "wp-power-stone": "SPIRITUAL",
+  "wp-oneiromancy": "SPIRITUAL_SENSE",
+  // seed カテゴリ
+  spiritual: "SPIRITUAL",
+  money: "FENG_SHUI",
+};
+
+/**
+ * 運営記事末尾の「おすすめの占い師」セクション用。
+ * 記事カテゴリと同じ専門領域 (DivinationCategorySlug マッピング) の公開占い師を優先し、
+ * 不足分は全体ランキングで補完する。
+ */
+export async function getRecommendedAdvisorsForBlogPost(
+  blogCategorySlug: string,
+  limit = 3
+): Promise<AdvisorCardView[]> {
+  const divSlug = BLOG_CATEGORY_TO_DIVINATION[blogCategorySlug];
+  const matched: AdvisorCardRow[] = divSlug
+    ? await db.fortuneTellerProfile.findMany({
+        where: {
+          isPublished: true,
+          categories: { some: { category: { slug: divSlug } } },
+        },
+        orderBy: [
+          { ratingAverage: { sort: "desc", nulls: "last" } },
+          { ratingCount: "desc" },
+          { createdAt: "desc" },
+        ],
+        take: limit,
+        select: ADVISOR_CARD_SELECT,
+      })
+    : [];
+  if (matched.length >= limit) return matched.map(toAdvisorCard);
+
+  const seen = matched.map((a) => a.slug);
+  const fill: AdvisorCardRow[] = await db.fortuneTellerProfile.findMany({
+    where: { isPublished: true, slug: { notIn: seen } },
+    orderBy: [
+      { ratingAverage: { sort: "desc", nulls: "last" } },
+      { ratingCount: "desc" },
+      { createdAt: "desc" },
+    ],
+    take: limit - matched.length,
+    select: ADVISOR_CARD_SELECT,
+  });
+  return [...matched, ...fill].map(toAdvisorCard);
+}
+
+/**
  * searchAdvisors (ADR-2): keyword search + structured AND filters + sort +
  * pagination, all server-side (PERF-5). Returns a live result set + total
  * count for "結果件数表示". No 要配慮情報 (consultation summaries) is ever read.

@@ -3,8 +3,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, CalendarHeart, BookOpen, Sparkles } from "lucide-react";
 
-import { getPostDetail, getRelatedPosts } from "@/lib/queries";
+import {
+  getPostDetail,
+  getRelatedPosts,
+  getRecommendedAdvisorsForBlogPost,
+} from "@/lib/queries";
 import { decodeSlugParam } from "@/lib/blog/slug-param";
+import { FortuneTellerCard } from "@/components/home/fortune-teller-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,6 +78,10 @@ export default async function BlogPostPage({
   const related = await getRelatedPosts(post.category.slug, post.slug, 3);
 
   const isAdvisorAuthor = post.author.advisorSlug != null;
+  // 運営社(=占い師でない著者)の記事の末尾に「おすすめの占い師」3名を表示する。
+  const recommendedAdvisors = isAdvisorAuthor
+    ? []
+    : await getRecommendedAdvisorsForBlogPost(post.category.slug, 3);
   const advisorHref = post.author.advisorSlug
     ? `/advisors/${post.author.advisorSlug}`
     : null;
@@ -232,6 +241,27 @@ export default async function BlogPostPage({
                 ))}
               </ul>
             </div>
+          )}
+
+          {/* 運営記事の末尾に「おすすめの占い師」 (3 名) を表示。占い師著者の記事の場合は
+              下の Advisor CTA セクションが代わりに出る。 */}
+          {!isAdvisorAuthor && recommendedAdvisors.length > 0 && (
+            <section className="mt-12 rounded-2xl border border-brand-teal/30 bg-brand-rose-pale/40 p-6">
+              <h2 className="flex items-center gap-2 font-heading text-h4 font-semibold text-primary">
+                <Sparkles className="h-5 w-5 text-brand-teal-strong" aria-hidden="true" />
+                この記事におすすめの占い師
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                「{post.category.label}」に近い専門領域で活動している占い師をピックアップしました。
+              </p>
+              <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {recommendedAdvisors.map((a) => (
+                  <li key={a.slug}>
+                    <FortuneTellerCard advisor={a} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           {/* Advisor consultation CTA (C-4 送客) — only when the author is an advisor */}

@@ -119,6 +119,15 @@ function decodeEntities(s: string): string {
     .replace(/&#x([0-9a-fA-F]+);/g, (_, h) =>
       String.fromCodePoint(parseInt(h, 16))
     )
+    .replace(/&hellip;/g, "…")
+    .replace(/&mdash;/g, "—")
+    .replace(/&ndash;/g, "–")
+    .replace(/&laquo;/g, "«")
+    .replace(/&raquo;/g, "»")
+    .replace(/&ldquo;/g, "“")
+    .replace(/&rdquo;/g, "”")
+    .replace(/&lsquo;/g, "‘")
+    .replace(/&rsquo;/g, "’")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -130,6 +139,7 @@ function decodeEntities(s: string): string {
 
 function stripHtml(html: string): string {
   return decodeEntities(html.replace(/<[^>]*>/g, ""))
+    .replace(/\s*\[…\]\s*$/g, "") // WP の自動抜粋末尾マーカー除去
     .replace(/\s+/g, " ")
     .trim();
 }
