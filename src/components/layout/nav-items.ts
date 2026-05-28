@@ -7,6 +7,21 @@ export const PRIMARY_NAV: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/blog", label: "ブログ" },
 ];
 
+/**
+ * ロール別に主要ナビへ追加表示するリンク。
+ * ADMIN / FORTUNE_TELLER が業務画面に 1 クリックで到達できるよう、
+ * UserMenu のドロップダウンに頼らず常時可視化する目的。
+ * GENERAL は追加なし（PRIMARY_NAV だけで十分なので空配列）。
+ */
+export const ROLE_EXTRA_NAV: Record<
+  UserRole,
+  ReadonlyArray<{ href: string; label: string }>
+> = {
+  GENERAL: [],
+  FORTUNE_TELLER: [{ href: "/advisor", label: "ダッシュボード" }],
+  ADMIN: [{ href: "/admin", label: "管理" }],
+};
+
 /** Advisor-recruitment link, visually distinguished (outline coral) from primary nav. */
 export const ADVISOR_REGISTER = {
   href: "/register/advisor",

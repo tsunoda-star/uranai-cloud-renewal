@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   PRIMARY_NAV,
+  ROLE_EXTRA_NAV,
   ADVISOR_REGISTER,
   ROLE_MENU,
   ROLE_LABEL,
@@ -88,6 +89,10 @@ export function MobileNav({
   }, [open, close]);
 
   const roleItems = user ? ROLE_MENU[user.role] : [];
+  // 主要ナビにロール別追加リンクを合成（ADMIN→「管理」, FORTUNE_TELLER→「ダッシュボード」）。
+  const primaryNav = user
+    ? [...PRIMARY_NAV, ...ROLE_EXTRA_NAV[user.role]]
+    : PRIMARY_NAV;
 
   return (
     <div className="md:hidden">
@@ -145,7 +150,7 @@ export function MobileNav({
 
               <nav aria-label="モバイルナビゲーション" className="mt-6">
                 <ul className="flex flex-col gap-1">
-                  {PRIMARY_NAV.map((item) => (
+                  {primaryNav.map((item) => (
                     <li key={item.href}>
                       <Link
                         href={item.href}

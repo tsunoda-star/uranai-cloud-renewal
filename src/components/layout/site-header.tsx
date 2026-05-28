@@ -4,7 +4,7 @@ import { getAuthProvider, getCurrentSession, getCurrentUser } from "@/lib/auth";
 import { LogoMark } from "@/components/brand/logo-mark";
 import { getUnreadNotificationCount } from "@/lib/queries";
 import { Button } from "@/components/ui/button";
-import { PRIMARY_NAV, ADVISOR_REGISTER } from "./nav-items";
+import { PRIMARY_NAV, ROLE_EXTRA_NAV, ADVISOR_REGISTER } from "./nav-items";
 import { NavLink } from "./nav-link";
 import { UserMenu, type SessionUser } from "./user-menu";
 import { NotificationBell } from "./notification-bell";
@@ -28,6 +28,11 @@ export async function SiteHeader() {
     : null;
   const loginUrl = auth.getLoginUrl("/");
   const logoutUrl = auth.getLogoutUrl("/");
+  // ロール別の追加ナビ (ADMIN→「管理」, FORTUNE_TELLER→「ダッシュボード」) を主要ナビへ
+  // 常時可視化する。UserMenu ドロップダウンに頼らず 1 クリックで業務画面へ。
+  const primaryNav = session
+    ? [...PRIMARY_NAV, ...ROLE_EXTRA_NAV[session.role]]
+    : PRIMARY_NAV;
 
   // 通知ベルは一般ユーザーのマイページ通知へ直結（AC-B7-6）。未読件数のみ取得。
   let unreadCount = 0;
@@ -58,7 +63,7 @@ export async function SiteHeader() {
           className="hidden md:block"
         >
           <ul className="flex items-center gap-7">
-            {PRIMARY_NAV.map((item) => (
+            {primaryNav.map((item) => (
               <li key={item.href}>
                 <NavLink href={item.href} label={item.label} />
               </li>

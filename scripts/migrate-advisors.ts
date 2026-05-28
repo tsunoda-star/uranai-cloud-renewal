@@ -131,6 +131,22 @@ function fallbackEmail(role: "advisor" | "user", accountId: string): string {
   return `legacy-${role}-${accountId}@migrated.uranai.cloud`;
 }
 
+/**
+ * DevAuthProvider が固定で使う 3 プリンシパル (sub `dev-*` / email `dev.*@uranai.local`)
+ * の email が CSV に混入した場合、upsert by email で seed の role を上書きしてしまうと
+ * /dev/login の挙動が壊れる (例: dev.general が FORTUNE_TELLER 化)。
+ * 移管対象から確実に外すためのガード。
+ */
+const DEV_PRINCIPAL_EMAILS = new Set([
+  "dev.general@uranai.local",
+  "dev.advisor@uranai.local",
+  "dev.admin@uranai.local",
+]);
+
+function isDevPrincipalEmail(email: string): boolean {
+  return DEV_PRINCIPAL_EMAILS.has(email.toLowerCase());
+}
+
 function parseDate(raw: string): Date | null {
   if (!raw) return null;
   // ISO 文字列もしくは "YYYY/MM/DD" 形式。numbers-parser は datetime → isoformat。
@@ -173,6 +189,13 @@ async function main() {
         continue;
       }
       const email = row.メールアドレス.trim() || fallbackEmail("user", accountId);
+      if (isDevPrincipalEmail(email)) {
+        console.warn(
+          `  ⚠ user #${accountId}: skip — email \"${email}\" is a DevAuthProvider principal (would corrupt /dev/login)`
+        );
+        uSkipped++;
+        continue;
+      }
       const displayName = row.アカウント名.trim() || `ユーザー${accountId}`;
       const createdAt = parseDate(row.登録日) ?? new Date();
       const isActive = row.ステータス.trim() === "利用中";
@@ -217,6 +240,13 @@ async function main() {
       const slug = `legacy-${userIdInUrl ?? accountId}`;
       const email =
         row.メールアドレス.trim() || fallbackEmail("advisor", accountId);
+      if (isDevPrincipalEmail(email)) {
+        console.warn(
+          `  ⚠ advisor #${accountId}: skip — email \"${email}\" is a DevAuthProvider principal (would corrupt /dev/login)`
+        );
+        aSkipped++;
+        continue;
+      }
       const displayName = row.アカウント名.trim() || `占い師${accountId}`;
       const createdAt = parseDate(row.登録日) ?? new Date();
       const isActive = row.ステータス.trim() === "利用中";
